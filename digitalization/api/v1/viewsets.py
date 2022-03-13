@@ -29,10 +29,16 @@ class CreateDocumentView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            topic_instance = Topic(name=serializer.validated_data['topic_name'])
-            topic_instance.save()
-            folder_instance = Folder(name=serializer.validated_data['folder_name'])
-            folder_instance.save()
+
+            topic_instance = Topic.objects.filter(name=serializer.validated_data['topic_name']).first()
+            if not topic_instance:
+                topic_instance = Topic(name=serializer.validated_data['topic_name'])
+                topic_instance.save()
+
+            folder_instance = Folder.objects.filter(name=serializer.validated_data['folder_name']).first()
+            if not folder_instance:
+                folder_instance = Folder(name=serializer.validated_data['folder_name'])
+                folder_instance.save()
             document_instance = Document(file=serializer.validated_data['file'],
                                          folder=folder_instance,
                                          topic=topic_instance)
